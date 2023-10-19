@@ -1,3 +1,5 @@
+import asyncio
+
 from loguru import logger
 from telethon import TelegramClient
 
@@ -19,7 +21,7 @@ def parse_db_msgs(tg_msgs: list, offset) -> list[Message]:
                     file_name = attr.file_name
                     file_names.append(file_name)
 
-        if msg.text is None:
+        if msg.text is None or msg.text.strip() == "":
             continue
         res.append(
             Message(
@@ -55,6 +57,7 @@ class MsgSyp:
             .all()
         )
         for offset in offsets:
+            await asyncio.sleep(10)
             tg_msgs = await self.grab_tg_msgs(offset)
             if len(tg_msgs) > 0:
                 date = tg_msgs[-1].date
