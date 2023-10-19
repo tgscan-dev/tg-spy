@@ -1,3 +1,6 @@
+# Tg-Spy
+
+Simplified and efficient message monitoring for Telegram.
 
 ## Contributions
 
