@@ -12,8 +12,8 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
-class SypOffsets(Base):  # type: ignore
-    __tablename__ = "syp_offsets"
+class SpyOffsets(Base):  # type: ignore
+    __tablename__ = "spy_offsets"
 
     username = Column(String(1024), primary_key=True)
     last_offset = Column(BigInteger, nullable=False)

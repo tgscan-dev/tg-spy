@@ -5,7 +5,7 @@ from telethon import TelegramClient
 
 from tg_spy.conf.env import settings
 from tg_spy.dao.database import DBSession
-from tg_spy.dao.models import Message, SypOffsets
+from tg_spy.dao.models import Message, SpyOffsets
 
 api_id = 1024
 api_hash = "b18441a1ff607e10a989891a5462e627"
@@ -23,11 +23,15 @@ def parse_db_msgs(tg_msgs: list, offset) -> list[Message]:
 
         if msg.text is None or msg.text.strip() == "":
             continue
+        try:
+            sender_id = msg.sender.id
+        except Exception:
+            sender_id = 0
         res.append(
             Message(
                 offset=msg.id,
                 username=offset.username,
-                sender_id=msg.sender.id,
+                sender_id=sender_id,
                 content="\n".join(file_names) + "\n" + msg.text,
                 send_time=msg.date,
             )
@@ -52,8 +56,8 @@ class MsgSyp:
         await self.tg_client.start("9")
         logger.info("tg_client started")
         offsets = (
-            self.db_session.query(SypOffsets)
-            .filter(SypOffsets.crawl_link == False)
+            self.db_session.query(SpyOffsets)
+            .filter(SpyOffsets.crawl_link == False)
             .all()
         )
         for offset in offsets:
