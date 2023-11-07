@@ -62,22 +62,28 @@ class MsgSyp:
         )
         while True:
             for offset in offsets:
-                await asyncio.sleep(60)
-                try:
-                    await self.fetch_save_msg(offset)
-                except Exception as e:
-                    logger.error(e)
+                await self.fetch_and_save(offset)
 
-    async def fetch_save_msg(self, offset):
-        tg_msgs = await self.grab_tg_msgs(offset)
-        if len(tg_msgs) > 0:
-            date = tg_msgs[-1].date
-            logger.info(f"Last message date: {date}")
-        if tg_msgs:
-            db_msgs = parse_db_msgs(tg_msgs, offset)
-            await self.save2db(db_msgs)
-            offset.last_offset = tg_msgs[-1].id
-            self.db_session.commit()
+    async def fetch_and_save(self, offset):
+        while True:
+            try:
+                await asyncio.sleep(60)
+                tg_msgs = await self.grab_tg_msgs(offset)
+                if len(tg_msgs) == 0:
+                    logger.info("No more messages")
+                    break
+                if len(tg_msgs) > 0:
+                    date = tg_msgs[-1].date
+                    logger.info(f"Last message date: {date}")
+                if tg_msgs:
+                    db_msgs = parse_db_msgs(tg_msgs, offset)
+                    await self.save2db(db_msgs)
+                    offset.last_offset = tg_msgs[-1].id
+                    self.db_session.commit()
+
+            except Exception as e:
+                logger.error(e)
+                break
 
     async def grab_tg_msgs(self, offset):
         username = offset.username
