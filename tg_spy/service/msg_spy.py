@@ -60,12 +60,13 @@ class MsgSyp:
             .filter(SpyOffsets.crawl_link == False)
             .all()
         )
-        for offset in offsets:
-            await asyncio.sleep(60)
-            try:
-                await self.fetch_save_msg(offset)
-            except Exception as e:
-                logger.error(e)
+        while True:
+            for offset in offsets:
+                await asyncio.sleep(60)
+                try:
+                    await self.fetch_save_msg(offset)
+                except Exception as e:
+                    logger.error(e)
 
     async def fetch_save_msg(self, offset):
         tg_msgs = await self.grab_tg_msgs(offset)
